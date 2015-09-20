@@ -30,7 +30,7 @@ def give_medal(cmd, bot, args, msg, event):
 
 
 def print_medals(cmd, bot, args, msg, event):
-    medal_list = "**Who's Got Medals:**\n"
+    medal_list = "Who's Got Medals:\n"
     for k, v in Medals.items():
         medal_list += str.format("{0} has {1}\n", k, v)
     return medal_list
