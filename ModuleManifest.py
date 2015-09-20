@@ -1,5 +1,7 @@
 module_file_names = [
-    'botbuiltins.meta'
+    'botbuiltins.meta',
+    'points',
+    'GeniusMedals'
 ]
 
 # You can add more modules there in the following format:
