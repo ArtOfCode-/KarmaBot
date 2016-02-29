@@ -149,7 +149,7 @@ def star(cmd, bot, args, msg, event):
         return "This message has already been starred by someone else."
     if message.owner.name == "KarmaBot":
         return "I can't star my own messages."
-    result = change_points(user, -100, False)
+    result = change_points(user, -100, True)
     if not result:
         return "You don't have enough points to pin a message."
     message.star()
@@ -175,7 +175,7 @@ def pin(cmd, bot, args, msg, event):
         return "This message has already been pinned."
     if message.owner.name == 'KarmaBot':
         return "I can't pin my own messages. This is a design decision because of a bug in chat."
-    result = change_points(user, -500, False)
+    result = change_points(user, -500, True)
     if not result:
         return "You don't have enough points to pin a message."
     message.pin()
