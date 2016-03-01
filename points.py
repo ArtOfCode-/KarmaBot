@@ -131,6 +131,32 @@ def get_points(cmd, bot, args, msg, event):
         Points[user.lower()] = 200
         return "200"
 
+def show_points(cmd, bot, args, msg, event):
+    message = ""
+    print_all = False
+    
+    if len(args) >= 1:
+        if "all" in args[0].lower():
+            print_all = True
+            
+    for user in Points:
+        if Points[user] == 0 and not print_all:
+            #del Points[user]
+            continue
+        
+        message = message + " " + str(user) + ": " + str(Points[user]) + ","
+        
+    return message
+    
+def prune_points(cmd, bot, args, msg, event):
+    global Points
+    users_to_delete = []
+    for user in Points:
+        if Points[user] == 0:
+            users_to_delete.append(user)
+    for u in range(len(users_to_delete)):
+        del Points[users_to_delete[u]]
+    return "User with 0 points have been removed from list"
 
 def star(cmd, bot, args, msg, event):
     global Stars
@@ -251,6 +277,10 @@ commands = [
             "Administrates points - like `givepoints` but without transfer or restriction.", True),
     Command('getpoints', get_points,
             "Tells you how many points someone has. Syntax: `getpoints` or `getpoints <user>`", False),
+    Command('showpoints', show_points,
+            "List all the points from all users. Syntax: `getpoints`", False),
+    Command('prunepoints', prune_points,
+            "Remove users from list when they have 0 points. Syntax: `prunepoints`", True),
     Command('star', star,
             "Stars a message. You can't star my messages or messages I've already starred. Syntax: `star <id>`", False),
     Command('pin', pin,
