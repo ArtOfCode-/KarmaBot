@@ -94,7 +94,7 @@ def give_points(cmd, bot, args, msg, event):
         return "Invalid amount."
 
     negAmount = -amount
-    negUser = event.user.name
+    negUser = event.user.name.replace(' ', '')
 
     remove = change_points(negUser, negAmount)
     if remove == False:
@@ -131,8 +131,9 @@ def get_points(cmd, bot, args, msg, event):
         Points[user.lower()] = 200
         return "200"
 
+
 def show_points(cmd, bot, args, msg, event):
-    message = ""
+    message = "Here are the points collected by the users:"
     print_all = False
     
     if len(args) >= 1:
@@ -144,9 +145,10 @@ def show_points(cmd, bot, args, msg, event):
             #del Points[user]
             continue
         
-        message = message + " " + str(user) + ": " + str(Points[user]) + ","
+        message = message + "\n " + str(user) + ": " + str(Points[user])
         
     return message
+
     
 def prune_points(cmd, bot, args, msg, event):
     global Points
@@ -157,6 +159,7 @@ def prune_points(cmd, bot, args, msg, event):
     for u in range(len(users_to_delete)):
         del Points[users_to_delete[u]]
     return "User with 0 points have been removed from list"
+
 
 def star(cmd, bot, args, msg, event):
     global Stars
