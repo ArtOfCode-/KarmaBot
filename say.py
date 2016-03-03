@@ -95,13 +95,27 @@ def command_repeat(cmd, bot, args, msg, event):
             return "Argument #1 (num_repeat) is not an integer."
         return drop(-1, (args[1] + " ") * num_repeat)
 
+def command_split(cmd, bot, args, msg, event):
+    if len(args) < 1:
+        return "Not enough arguments. Syntax: `$PREFIXsplit <text>`."
+    else:
+        return " ".join(list("".join(args)))
+
+def command_join(cmd, bot, args, msg, event):
+    if len(args) < 1:
+        return "Not enough arguments. Syntax: `$PREFIXjoin <text>`."
+    else:
+        return "".join(args)
+
 commands = [
     Command('hi', command_hi, 'Greets you.', False, False, None, None),
     Command('say', command_say, 'Says something to you. Picked at random from the chat network.', False, False, None, None),
     Command('take', command_take, 'Takes *num_words* from the set of words you provide. Syntax: `$PREFIXtake <num_words> <words>`.', False, False, None, None),
     Command('drop', command_drop, 'Drops words from the set of words you provide. Syntax: `$PREFIXdrop <num_words> <words>`.', False, False, None, None),
     Command('repeat', command_repeat, 'Repeats what you supply to it <num_repeat> times. Syntax: `$PREFIXrepeat <num_repeat> <message>`.', False, False, parse_repeat, None, None, None),
-    Command('say_n', command_say_n, '`$PREFIXsay`, but repeated *n* times and concatenated.', False, False, None, None)
+    Command('say_n', command_say_n, '`$PREFIXsay`, but repeated *n* times and concatenated.', False, False, None, None),
+    Command('split', command_split, '$PREFIXsplit <text> splits the text at every character.', False, False, None, None),
+    Command('join', command_join, 'Joins all text, effectively removing all whitespace.', False, False, None, None),
 ]
 
 module_name = "say"
