@@ -94,14 +94,18 @@ def command_repeat(cmd, bot, args, msg, event):
         except ValueError:
             return "Argument #1 (num_repeat) is not an integer."
         return drop(-1, (args[1] + " ") * num_repeat)
+        
+def command_sup(cmd, bot, args, msg, event):
+    return bot.command("cat {{hi}} {{say}}", msg, event)
 
 commands = [
-    Command('hi', command_hi, 'Greets you.', False, False, None, None),
+    Command('hi', command_hi, 'Greets you.', False, False, None, ['hello']),
     Command('say', command_say, 'Says something to you. Picked at random from the chat network.', False, False, None, None),
     Command('take', command_take, 'Takes *num_words* from the set of words you provide. Syntax: `$PREFIXtake <num_words> <words>`.', False, False, None, None),
     Command('drop', command_drop, 'Drops words from the set of words you provide. Syntax: `$PREFIXdrop <num_words> <words>`.', False, False, None, None),
     Command('repeat', command_repeat, 'Repeats what you supply to it <num_repeat> times. Syntax: `$PREFIXrepeat <num_repeat> <message>`.', False, False, parse_repeat, None, None, None),
-    Command('say_n', command_say_n, '`$PREFIXsay`, but repeated *n* times and concatenated.', False, False, None, None)
+    Command('say_n', command_say_n, '`$PREFIXsay`, but repeated *n* times and concatenated.', False, False, None, None),
+    Command('sup', command_sup, 'Ask Karma what\'s going on.', False, False, None, None)
 ]
 
 module_name = "say"
