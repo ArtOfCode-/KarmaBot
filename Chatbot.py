@@ -240,12 +240,15 @@ class Chatbot:
         else:
             stripped_content = content
         parts = stripped_content.split(" ")
-        if not parts[0].startswith(self.prefix):
+        
+        pinged = parts[0].startswith("@{0}".format(self.chatbot_name))
+        
+        if not parts[0].startswith(self.prefix) and not pinged:
             return
-
-        cmd_args = stripped_content[len(self.prefix):]
+        
+        cmd_args = stripped_content[len(self.prefix):] if not pinged else stripped_content[1+len(self.chatbot_name)+1:]
         if self.requires_special_arg_parsing(cmd_args.split(" ")[0]):
-            cmd_args = content[len(self.prefix):]
+            cmd_args = content[len(self.prefix):] if not pinged else content[1+len(self.chatbot_name)+1]
         output = self.command(cmd_args, message, event)
         if output is not False and output is not None:
             output_with_reply = ":%i %s" % (message.id, output)
