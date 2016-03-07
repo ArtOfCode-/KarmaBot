@@ -107,6 +107,9 @@ def command_sup(cmd, bot, args, msg, event):
 
 def command_wiseman(cmd, bot, args, msg, event):
     return bot.command("cat A wise man says: '*{{say}}*', but a wiser man says: '*{{say}}*'", msg, event)
+    
+def command_duck(cmd, bot, args, msg, event):
+    return "\n>(.)__\n_(___/____\|/"
 
 commands = [
     Command('hi', command_hi, 'Greets you.', False, False, None, ['hello']),
@@ -118,7 +121,8 @@ commands = [
     #Command('take', command_take, 'Takes *num_words* from the set of words you provide. Syntax: `$PREFIXtake <num_words> <words>`.', False, False, None,None),
     #Command('drop', command_drop, 'Drops words from the set of words you provide. Syntax: `$PREFIXdrop <num_words> <words>`.', False, False, None, None),
     Command('wise_man', command_wiseman, 'Tells you some wisdom.', False, False, None, None),
-    Command('sup', command_sup, 'Ask Karma what\'s going on.', False, False, None, None)
+    Command('sup', command_sup, 'Ask Karma what\'s going on.', False, False, None, None),
+    Command('duck', command_duck, 'Shows some ducks',False,False,None,None)
 ]
 
 module_name = "say"
