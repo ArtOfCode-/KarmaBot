@@ -227,7 +227,7 @@ class Chatbot:
 
         message = event.message
         content = Message(event.message.id, client).content_source
-        
+
         fixed_font = is_fixed_font(content)
         if fixed_font:
             fixed_font = True
@@ -245,6 +245,8 @@ class Chatbot:
         if not pinged and not parts[0].startswith(self.prefix):
             return
 
+        cmd_args = stripped_content[len(self.prefix):] if not pinged else stripped_content[1+len(self.chatbot_name)+1:]
+
         #DEBUG
         if "--debug" in sys.argv:
             if pinged:
@@ -253,9 +255,8 @@ class Chatbot:
                 print("Received command over prefix, stripped_content is '{0}'".format(stripped_content[len(self.prefix):]))
         #DEBUG END
 
-        cmd_args = stripped_content[len(self.prefix):] if not pinged else stripped_content[1 + len(self.chatbot_name)+1:]
         if self.requires_special_arg_parsing(cmd_args.split(" ")[0]):
-            cmd_args = content[len(self.prefix):] if not pinged else content[1 + len(self.chatbot_name) + 1:]
+            cmd_args = content[len(self.prefix):] if not pinged else content[1+len(self.chatbot_name)+1]
         output = self.command(cmd_args, message, event)
         if output is not False and output is not None:
             output_with_reply = ":%i %s" % (message.id, output)
