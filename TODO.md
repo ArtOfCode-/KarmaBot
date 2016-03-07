@@ -25,3 +25,28 @@ This should be a list of a bugs to fix or features to develop
 	=> Recovered.
 - **Arithmetic** calculate sums, subtractions, multiplications, etc.
         - Maybe Regex it so it contains no letters and then execute it as code? Can Python do this? [J_F_B_M]
+- **Work** each user can start a timer
+        - can write as much as they want in the 5 minutes after the timer is started,
+        - after the 5 minutes grace, the number of messages is accumulated
+        - they get a warning if
+                - they write more than 15 messages within a short time (tbd),
+                - when the timer reaches 30 minutes, they have written at least 5 messages before the current one, and the last one was less 
+                  than 10 minutes previously,
+                - when they write at least 7 messages within one hour before the current one, and the last one was less than 15min before.
+        - they get automatically removed from the list if they haven't written more than 5 messages in the last 60 minutes OR when they decide to stop the timer
+        - it provides a status (diff work plugin status and work status) with current counts and when was the start
+
+
+### git
+
+- Push current branches to remote repo:
+                git push origin dev
+                git checkout master
+                git push origin master
+                (back to dev: git checkout dev)
+
+
+
+
+
+

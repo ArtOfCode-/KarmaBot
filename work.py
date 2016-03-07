@@ -5,34 +5,100 @@ from ChatExchange6.chatexchange6.events import MessagePosted, MessageEdited
 from ChatExchange6.chatexchange6.messages import Message
 
 #---------------------------------------------
+grace_time  = 5*60
+time_period = 60*60
+max_msgs    = 14
+min_msgs    = 5
+max_in_time_period = 7
+max_in_half_time = 4
+
 class User:
     def __init__(self, name):
         self.name = name
+        self.reset()
+        
+    def reset(self):
         self.heuristic_start = time.time()
         self.last_action = time.time()
+        self.count = []
     
     def update(self):
-        global same_action_delay
-        global warning_time
+        #global same_action_delay
+        #global warning_time
+        global grace_time
+        global time_period
+        global max_msgs
+        global min_msgs
+        global max_in_time_period
+        global max_in_half_time
         
+        # Get current time
         current = time.time()
-        if (current - self.last_action) > same_action_delay:
-            self.heuristic_start = current
         
-        self.last_action = current
+        # Orig
+        #if (current - self.last_action) > same_action_delay:
+        #    self.heuristic_start = current
+        #
+        #self.last_action = current
+        #
+        #should_warn = (self.last_action - self.heuristic_start) > warning_time
+        #
+        #if should_warn:
+        #    self.heuristic_start = self.last_action
         
-        should_warn = (self.last_action - self.heuristic_start) > warning_time
+        # New
+        #should_warn = (current - self.heuristic_start) > warning_time and (current - self.last_action) < same_action_delay
+        #
+        #if should_warn:
+        #    self.heuristic_start = current
+        #
+        #return should_warn
         
-        if should_warn:
-            self.heuristic_start = self.last_action
+        # We allow a grace time after starting the timer
+        if current-self.heuristic_start < grace_time:
+            return False
+            
+        # Add it to the list of actions    
+        self.count.append(current)
         
-        return should_warn
+        # Way too much chatting to be working
+        if len(self.count) > max_msgs:
+            self.reset()
+            return True
+            
+        # Keep only the last 60 minutes
+        at_least_an_hour = False
+        n_msg = len(self.count)
+        for n in range(n_msg):
+            if current-self.count[0]>time_period:
+                del self.count[0]
+                at_least_an_hour = True
+                
+        # If an hour passed and only few messages were written, we restart it
+        if len(self.count) < min_msgs and current-self.heuristic_start>time_period+grace_time:
+            self.reset()
+            return False
+            
+        # Too active in the first 30 minutes
+        if len(self.count)>max_in_half_time and current-self.heuristic_start<0.5*time_period:
+            return True
+            
+        # Too active within one hour
+        if len(self.count)>max_in_time_period:
+            self.reset()
+            return True
+            
+        return False
+    
+    def status(self):
+        return "Dear {0}, you are supposed to be working since {1} minutes. But I have counted {2} messages already.".format(self.name,int((time.time()-self.heuristic_start)/60.0),len(self.count))
+        
             
 #---------------------------------------------
 
 thread_lock = threading.Lock()
-same_action_delay = 5*60            # MAGIC NUMBER Time between two actions to belong together. Should be high enough to account for typing.
-warning_time =      30*60           # MAGIC NUMBER If user is chatting longer than this Karma issues a warning
+#same_action_delay = 5*60            # MAGIC NUMBER Time between two actions to belong together. Should be high enough to account for typing.
+#warning_time =      6*60           # MAGIC NUMBER If user is chatting longer than this Karma issues a warning
 work_vars = {
     'running':    False,
     'working':    dict(),
@@ -45,7 +111,7 @@ work_vars = {
 
 def command_work(cmd, bot, args, msg, event):
     if len(args) < 1:
-        return "I need arguments! Use *work help*"
+        return "I need arguments! Use *help work*"
     
     if args[0] == "start":
         return work_start(bot, args, msg, event)
@@ -60,15 +126,17 @@ def command_work(cmd, bot, args, msg, event):
         return work_start(bot, args, msg, event)
     
     if args[0] == "status":
-        return work_plugin_status(bot, args, msg, event)
-    
+        return work_status(bot, args, msg, event)
+   
     if len(args) >= 2:
         if args[0] == "plugin":
             if args[1] == "start":
                 return work_plugin_start(bot, args, msg, event)
             if args[1] == "stop":
                 return work_plugin_stop(bot, args, msg, event)
-    
+            if args[1] == "status":
+                return work_plugin_status(bot, args, msg, event)
+     
     return "Sorry, I don't understand your arguments. Use *help work* to learn more."
 
 #---------------------------------------------
@@ -93,7 +161,7 @@ def work_start(bot, args, msg, event):
     work_vars['working'][event.user.name] = User(event.user.name)
     thread_lock.release()                       # Lock release
     
-    return "has been added to the list. Is now a good time to get to work?"
+    return "has been added to the list. Now, get to work..."
 
 def work_stop(bot, args, msg, event):
     global work_vars
@@ -108,6 +176,18 @@ def work_stop(bot, args, msg, event):
     thread_lock.release()                       # Lock release
     
     return "You have been removed from the list."
+    
+def work_status(bot, args, msg, event):
+    global work_vars
+    global thread_lock
+    
+    thread_lock.acquire()
+    if event.user.name not in work_vars['working']:
+        thread_lock.release()
+        return "Were you supposed to be working? You did not tell me!"
+    message = work_vars['working'][event.user.name].status()
+    thread_lock.release()
+    return message+" But shouldn't you be working instead of asking me?"
 
 def work_pause(bot, args, msg, event):
     global work_vars
@@ -188,7 +268,7 @@ def on_event_work(event, client):
         thread_lock.release()                   # Lock release
 
 commands = [
-    Command('work', command_work, 'Use *{0} start* and *{0} stop* to join Karma, *{0} pause* / *{0} unpause* to take a break, *{0} plugin start* / *{0} plugin stop* to control the plugin and *{0} status* to get the current status of the plugin.'.format("work"), False, False, None, None)
+    Command('work', command_work, 'Use *{0} start* and *{0} stop* to join Karma, *{0} pause* / *{0} unpause* to take a break, *{0} status* to know where you stand. *{0} plugin start* / *{0} plugin stop* to control the plugin and *{0} plugin status* to get the current status of the plugin.'.format("work"), False, False, None, None)
 ]
 
 module_name = "work"
