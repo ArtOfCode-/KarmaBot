@@ -188,7 +188,7 @@ def on_event_work(event, client):
         thread_lock.release()                   # Lock release
 
 commands = [
-    Command('work', command_work, 'Use *start* and *stop* to join Karma, *pause* / *unpause* to take a break, *plugin start* / *plugin stop* to control the plugin and *status* to get the current status of the plugin.', False, False, None, None)
+    Command('work', command_work, 'Use *{0} start* and *{0} stop* to join Karma, *{0} pause* / *{0} unpause* to take a break, *{0} plugin start* / *{0} plugin stop* to control the plugin and *{0} status* to get the current status of the plugin.'.format("work"), False, False, None, None)
 ]
 
 module_name = "work"
