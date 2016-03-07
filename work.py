@@ -81,6 +81,7 @@ class User:
             
         # Too active in the first 30 minutes
         if len(self.count)>max_in_half_time and current-self.heuristic_start<0.5*time_period:
+            self.reset()
             return True
             
         # Too active within one hour

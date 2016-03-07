@@ -35,6 +35,7 @@ This should be a list of a bugs to fix or features to develop
                 - when they write at least 7 messages within one hour before the current one, and the last one was less than 15min before.
         - they get automatically removed from the list if they haven't written more than 5 messages in the last 60 minutes OR when they decide to stop the timer
         - it provides a status (diff work plugin status and work status) with current counts and when was the start
+        => _[DONE BP 2016-03-07]_
 
 
 ### git
