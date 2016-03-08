@@ -17,43 +17,26 @@ class User:
         self.name = name
         self.reset()
         
-    def reset(self):
-        self.one_hour = 0
+    def reset(self,full=True):
+        if full:
+            self.pause_length = 0
+            self.one_hour = 0
         self.heuristic_start = time.time()
         self.last_action = time.time()
         self.count = []
+        self.pause = False
     
     def update(self):
-        #global same_action_delay
-        #global warning_time
-        global grace_time
-        global time_period
-        global max_msgs
-        global min_msgs
-        global max_in_time_period
-        global max_in_half_time
+        global grace_time, time_period
+        global max_msgs, min_msgs
+        global max_in_time_period, max_in_half_time
+        
+        # Not counting anything during a pause
+        if self.pause:
+            return False
         
         # Get current time
         current = time.time()
-        
-        # Orig
-        #if (current - self.last_action) > same_action_delay:
-        #    self.heuristic_start = current
-        #
-        #self.last_action = current
-        #
-        #should_warn = (self.last_action - self.heuristic_start) > warning_time
-        #
-        #if should_warn:
-        #    self.heuristic_start = self.last_action
-        
-        # New
-        #should_warn = (current - self.heuristic_start) > warning_time and (current - self.last_action) < same_action_delay
-        #
-        #if should_warn:
-        #    self.heuristic_start = current
-        #
-        #return should_warn
         
         # We allow a grace time after starting the timer
         if current-self.heuristic_start < grace_time:
@@ -77,9 +60,10 @@ class User:
                 
         # If an hour passed and only few messages were written, we restart it
         if len(self.count) < min_msgs and current-self.heuristic_start>time_period+grace_time:
-            sum_worked = self.one_hour + current-self.heuristic_start
-            self.reset()
-            self.one_hour = sum_worked
+            #sum_worked = self.one_hour + current-self.heuristic_start
+            self.one_hour += current-self.heuristic_start
+            self.reset(False)
+            #self.one_hour = sum_worked
             return False
             
         # Too active in the first 30 minutes
@@ -95,8 +79,12 @@ class User:
         return False
     
     def status(self):
+        if self.pause:
+            return "you are in pause since {0} minute(s).".format(int((time.time()-self.pause_start)/60.0))
+            
         time_in_min = int((time.time()-self.heuristic_start)/60.0) 
         hour_passed = int(self.one_hour/60.0)
+        total_pause = int(self.pause_length/60.0)
         counts = len(self.count)
         
         if hour_passed == 0:
@@ -108,8 +96,15 @@ class User:
                 else:
                     return "Dear {0}, you are supposed to be working since {1} minutes. And I have counted {2} messages already.".format(self.name,time_in_min,counts)
         else:
-            return ", you have been working since {0} minutes. Don't lose the momentum. You now stand at {1} counts.".format(time_in_min+hour_passed,counts)
+            return ", you have been working since {0} minutes. Don't lose the momentum. You now stand at {1} counts.".format(time_in_min+hour_passed-total_pause,counts)
         
+    def start_pause(self):
+        self.pause = True
+        self.pause_start = time.time()
+        
+    def stop_pause(self):
+        self.pause = False
+        self.pause_length += time.time() - self.pause_start
             
 #---------------------------------------------
 
@@ -140,7 +135,7 @@ def command_work(cmd, bot, args, msg, event):
         return work_pause(bot, args, msg, event)
     
     if args[0] == "unpause":
-        return work_start(bot, args, msg, event)
+        return work_unpause(bot, args, msg, event)
     
     if args[0] == "status":
         return work_status(bot, args, msg, event)
@@ -222,13 +217,26 @@ def work_pause(bot, args, msg, event):
     global work_vars
     global thread_lock
     
-    return "NYI"
+    thread_lock.acquire()
+    if event.user.name not in work_vars['working']:
+        thread_lock.release()
+        return "Were you supposed to be working? You did not tell me!"
+    message = work_vars['working'][event.user.name].start_pause()
+    thread_lock.release()
+    return "You are now allowed to take a small break..."
 
 def work_unpause(bot, args, msg, event):
     global work_vars
     global thread_lock
     
-    return "NYI"
+    thread_lock.acquire()
+    if event.user.name not in work_vars['working']:
+        thread_lock.release()
+        return "Were you supposed to be working? You did not tell me!"
+    message = work_vars['working'][event.user.name].stop_pause()
+    thread_lock.release()
+    return "Pause is over, back to work!"
+ 
 
 def work_plugin_start(bot, args, msg, event):
     global work_vars
