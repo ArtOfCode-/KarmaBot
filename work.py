@@ -123,7 +123,7 @@ work_vars = {
 
 def command_work(cmd, bot, args, msg, event):
     if len(args) < 1:
-        return "I need arguments! Use *help work*"
+        return "Oh come on, you can argue better than that! *(Use `help work` for help on using the module.)*"
     
     if args[0] == "start":
         return work_start(bot, args, msg, event)
@@ -152,7 +152,7 @@ def command_work(cmd, bot, args, msg, event):
             if args[1] == "status":
                 return work_plugin_status(bot, args, msg, event)
      
-    return "Sorry, I don't understand your arguments. Use *help work* to learn more."
+    return "Oh come on, you can argue better than that! *(Use `help work` for help on using the module.)*"
 
 #---------------------------------------------
 
