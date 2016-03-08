@@ -41,6 +41,9 @@ def command_thanks(cmd,bot,args,msg,event):
 def command_emot(cmd,bot,args,msg,event):
     return get_random_line('Smile')
 
+def command_bye(cmd,bot,args,msg,event):
+    return get_random_line('Goodbye')
+
 def command_say(cmd, bot, args, msg, event):
     try:
         message = re.sub(r'@', '', bot.command("read {{randomint 1 27532246}}", msg, event))
@@ -113,6 +116,7 @@ def command_duck(cmd, bot, args, msg, event):
 
 commands = [
     Command('hi', command_hi, 'Greets you.', False, False, None, ['hello']),
+    Command('bye', command_bye, 'Greets you.', False, False, None, ['ciao']),
     Command('thanks',command_thanks, 'Acknowledge your thanks',False,False,None,None),
     Command('smile', command_emot, 'Prints an emoticone/smile',False, False, None,None),
     Command('say', command_say, 'Says something to you. Picked at random from the chat network.', False, False, None, None),
