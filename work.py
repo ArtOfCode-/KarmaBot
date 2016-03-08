@@ -208,9 +208,8 @@ def work_list(bot, args, msg, event):
     global work_vars
     global thread_lock
     
-    message = "If you see the following users, remind them that they ought to be working: "
-    for user in work_vars['working']:
-        message += user+", "
+    message = "If you see the following users, remind them that they ought to be working: {0}"
+    message = message.format(", ".join(work_vars['working']))
     return message
 
 def work_pause(bot, args, msg, event):
