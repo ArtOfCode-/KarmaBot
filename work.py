@@ -80,7 +80,7 @@ class User:
     
     def status(self):
         if self.pause:
-            return "you are in pause since {0} minute(s).".format(int((time.time()-self.pause_start)/60.0))
+            return "you have been on pause for {0} minute(s).".format(int((time.time()-self.pause_start)/60.0))
             
         time_in_min = int((time.time()-self.heuristic_start)/60.0) 
         hour_passed = int(self.one_hour/60.0)
@@ -92,11 +92,11 @@ class User:
                 return ", you should now start working."
             else:
                 if counts < 2:
-                    return "Dear {0}, you are supposed to be working since {1} minutes.".format(self.name,time_in_min)
+                    return "Dear {0}, you were supposed to start working {1} minutes ago.".format(self.name,time_in_min)
                 else:
-                    return "Dear {0}, you are supposed to be working since {1} minutes. And I have counted {2} messages already.".format(self.name,time_in_min,counts)
+                    return "Dear {0}, you were supposed to start working {1} minutes ago. And I have counted {2} messages already.".format(self.name,time_in_min,counts)
         else:
-            return ", you have been working since {0} minutes. Don't lose the momentum. You now stand at {1} counts.".format(time_in_min+hour_passed-total_pause,counts)
+            return ", you have been working for {0} minutes. Don't lose the momentum. You now stand at {1} messages.".format(time_in_min+hour_passed-total_pause,counts)
         
     def start_pause(self):
         self.pause = True
