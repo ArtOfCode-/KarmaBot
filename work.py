@@ -3,6 +3,7 @@ import threading
 import time
 from ChatExchange6.chatexchange6.events import MessagePosted, MessageEdited
 from ChatExchange6.chatexchange6.messages import Message
+import re
 
 #---------------------------------------------
 grace_time  = 5*60
@@ -209,7 +210,7 @@ def work_list(bot, args, msg, event):
     global thread_lock
     
     message = "If you see the following users, remind them that they ought to be working: {0}"
-    message = message.format(", ".join(work_vars['working']))
+    message = message.format(re.sub(r"([^,]) ",r"\1",", ".join(work_vars['working'])))
     return message
 
 def work_pause(bot, args, msg, event):
