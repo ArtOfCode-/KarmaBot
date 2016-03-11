@@ -13,7 +13,9 @@ This should be a list of a bugs to fix or features to develop
             - detectlang
             - translate
         => _[DONE 2016-03-02 J_F_B_M]_
-        Lost in the Master update. Should be added in the botbuiltins sudmodule again...
+        Lost in the Master update. Should be added in the ~~botbuiltins sudmodule~~ Chatbot.py again...
+        => _[FIXED 2016-03-11 J_F_B_M]_
+- **work plugin**: unpause should check that the user is in pause
         
 
 ### Features
@@ -36,7 +38,8 @@ This should be a list of a bugs to fix or features to develop
         - they get automatically removed from the list if they haven't written more than 5 messages in the last 60 minutes OR when they decide to stop the timer
         - it provides a status (diff work plugin status and work status) with current counts and when was the start
         => _[DONE BP 2016-03-07]_
-
+    - Prints time when unpause and work stop
+- **search** search using the DDG API
 
 ### git
 

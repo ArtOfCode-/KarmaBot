@@ -251,12 +251,14 @@ class Chatbot:
         if "--debug" in sys.argv:
             if pinged:
                 print("Received command over ping,   stripped_content is '{0}'".format(stripped_content[1 + len(self.chatbot_name) + 1:])) # "@" + self.chatbot_name + " "
+                print("Received command over ping,   content is          '{0}'".format(content[1 + len(self.chatbot_name) + 1:])) # "@" + self.chatbot_name + " "
             else:
                 print("Received command over prefix, stripped_content is '{0}'".format(stripped_content[len(self.prefix):]))
+                print("Received command over prefix, content is          '{0}'".format(content[len(self.prefix):]))
         #DEBUG END
 
         if self.requires_special_arg_parsing(cmd_args.split(" ")[0]):
-            cmd_args = content[len(self.prefix):] if not pinged else content[1+len(self.chatbot_name)+1]
+            cmd_args = content[len(self.prefix):] if not pinged else content[1+len(self.chatbot_name)+1:]
         output = self.command(cmd_args, message, event)
         if output is not False and output is not None:
             output_with_reply = ":%i %s" % (message.id, output)
@@ -277,6 +279,8 @@ class Chatbot:
         args = cmd_args[1:]
         exists, allowed = self.check_existence_and_chars(cmd_name, ' '.join(args))
         if not exists:
+            if "--debug" in sys.argv:
+                print("Command not found: cmd = '{0}', msg = '{1}'".format(cmd, msg))
             return "Command not found."
         if not allowed:
             return "Command contains invalid characters."
