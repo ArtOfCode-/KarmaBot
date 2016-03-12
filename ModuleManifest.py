@@ -4,6 +4,7 @@ module_file_names = [
     'GeniusMedals',
     'say',
     'setops',
+    'search',
     'work'
 ]
 
