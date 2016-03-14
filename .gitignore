@@ -9,3 +9,4 @@ client.log.*
 errorLogs.txt
 botdata/
 bot.pwd
+.~c9_invoke_*.py
