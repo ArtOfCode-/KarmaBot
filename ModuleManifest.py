@@ -3,6 +3,8 @@ module_file_names = [
     'points',
     'GeniusMedals',
     'say',
+    'setops',
+    'search',
     'work'
 ]
 

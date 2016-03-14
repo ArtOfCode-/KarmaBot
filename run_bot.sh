@@ -1,1 +1,1 @@
-./run.sh -c wb-robots
+python3 main.py -c wb-robots

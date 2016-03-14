@@ -241,20 +241,35 @@ class Chatbot:
             stripped_content = content
         parts = stripped_content.split(" ")
         
-        pinged = parts[0].startswith("@{0}".format(self.chatbot_name))
-        
-        if not parts[0].startswith(self.prefix) and not pinged:
+        pinged = parts[0].lower().startswith("@" + self.chatbot_name.lower())
+        if not pinged and not parts[0].startswith(self.prefix):
             return
-        
+
         cmd_args = stripped_content[len(self.prefix):] if not pinged else stripped_content[1+len(self.chatbot_name)+1:]
+
+        #DEBUG
+        if "--debug" in sys.argv:
+            if pinged:
+                print("Received command over ping,   stripped_content is '{0}'".format(stripped_content[1 + len(self.chatbot_name) + 1:])) # "@" + self.chatbot_name + " "
+                print("Received command over ping,   content is          '{0}'".format(content[1 + len(self.chatbot_name) + 1:])) # "@" + self.chatbot_name + " "
+            else:
+                print("Received command over prefix, stripped_content is '{0}'".format(stripped_content[len(self.prefix):]))
+                print("Received command over prefix, content is          '{0}'".format(content[len(self.prefix):]))
+        #DEBUG END
+
         if self.requires_special_arg_parsing(cmd_args.split(" ")[0]):
-            cmd_args = content[len(self.prefix):] if not pinged else content[1+len(self.chatbot_name)+1]
+            cmd_args = content[len(self.prefix):] if not pinged else content[1+len(self.chatbot_name)+1:]
         output = self.command(cmd_args, message, event)
         if output is not False and output is not None:
             output_with_reply = ":%i %s" % (message.id, output)
             if len(output_with_reply) > 500 and "\n" not in output_with_reply:
-                message.reply("Output would be longer than 500 characters (the limit for single-line messages), so only the first 500 characters are posted now.")
-                self.room.send_message(output_with_reply[:500])
+                fixed_formatted_reply = self.automatic_fixed_formatting(output_with_reply)
+                if not fixed_formatted_reply:
+                    #message.reply("Output would be longer than 500 characters (the limit for single-line messages), so only the first 500 characters are posted now.")
+                    message.reply("Automatic formatting of output failed or is disabled, printing the first 500 characters (the limit for single-line messages) instead.")
+                    self.room.send_message(output_with_reply[:500])
+                else:
+                    self.room.send_message(fixed_formatted_reply, False)
             else:
                 self.room.send_message(output_with_reply, False)
 
@@ -264,6 +279,8 @@ class Chatbot:
         args = cmd_args[1:]
         exists, allowed = self.check_existence_and_chars(cmd_name, ' '.join(args))
         if not exists:
+            if "--debug" in sys.argv:
+                print("Command not found: cmd = '{0}', msg = '{1}'".format(cmd, msg))
             return "Command not found."
         if not allowed:
             return "Command contains invalid characters."
@@ -277,3 +294,20 @@ class Chatbot:
         on_stops = self.modules.get_on_stop_methods()
         for on_stop in on_stops:
             on_stop(self)
+    
+    # Converts text to fixed format at latest possible breakpoint.
+    # This method is recursive.
+    def automatic_fixed_formatting(self, text):
+        #To disable this function, uncomment the next line
+        #return False
+        
+        if len(text) <= 500:    #Recursion anchor
+            return text
+        index = text.rfind(" ", 0, 500)
+        if index == -1:     #Failed to find a valid breakpoint in the current segment. Nothing we can do here now.
+            return False
+        result = text[:index] + "\n"
+        other_text = self.automatic_fixed_formatting(text[index+1:])        # !RECURSION!
+        if not other_text:  #Failed to find a valid breakpoint in a later segment. Nothing we can do here now.
+            return False
+        return result + other_text
