@@ -129,7 +129,8 @@ commands = [
     #Command('drop', command_drop, 'Drops words from the set of words you provide. Syntax: `$PREFIXdrop <num_words> <words>`.', False, False, None, None),
     Command('wise_man', command_wiseman, 'Tells you some wisdom.', False, False, None, None),
     Command('sup', command_sup, 'Ask Karma what\'s going on.', False, False, None, None),
-    Command('duck', command_duck, 'Shows some ducks',False,False,None,None)
+    Command('duck', command_duck, 'Shows some ducks',False,False,None,None),
+    Command('breakingnews', command_breaking_news, 'Prints the newest breaking news from the SE-Chats.', False, False, None, None),
 ]
 
 module_name = "say"
