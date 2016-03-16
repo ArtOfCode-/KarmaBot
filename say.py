@@ -114,6 +114,9 @@ def command_wiseman(cmd, bot, args, msg, event):
 def command_duck(cmd, bot, args, msg, event):
     return "\n>(.)__\n_(___/____\|/"
 
+def command_breaking_news(cmd, bot, args, msg, event):
+    return bot.command("cat ***BREAKING NEWS:*** *{{randomchoice {{getcurrentusers pingformat}}}} found solution to '**{{randomchoice {{say}} }}**'. It is: '**{{say}}**'*", msg, event)
+
 commands = [
     Command('hi', command_hi, 'Greets you.', False, False, None, ['hello']),
     Command('bye', command_bye, 'Greets you.', False, False, None, ['ciao']),
