@@ -5,7 +5,8 @@ module_file_names = [
     'say',
     'setops',
     'search',
-    'work'
+    'work',
+    #'games.meta',
 ]
 
 # You can add more modules there in the following format:

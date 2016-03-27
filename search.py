@@ -4,7 +4,7 @@ import requests
 import json
 
 # Configuration
-save_subdir = 'say'
+save_subdir = 'search'
 
 def command_search(cmd,bot,args,msg,event):
     
