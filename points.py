@@ -53,22 +53,18 @@ def on_bot_stop(bot):
 
 # helper methods
 
-def format_user_name(user)
+def format_user_name(user):
     usr = user.replace(' ','')
     return usr.lower()
 
-def change_points(usr_raw, amount=0, is_admin=False):
+def change_points(user_raw, amount=0, is_admin=False, list_current_users=""):
     global Points
 
-    user = format_user_name(user)
+    user = format_user_name(user_raw)
 
     if user not in Points:
-	list_current_users = bot.command('getcurrentusers pingformat')
-	if user in lust_current_users.lower():
-	    Points[user] = 200
-	    return user + ' is given a welcome budget of 200 points'
-	else:
-	    return user + ' is not present. Who are you trying to give points to?'
+        Points[user] = 200
+        return user + ' is given a welcome budget of 200 points'
 
     if not is_admin and Points[user] + amount < 0:
             return False
@@ -76,11 +72,11 @@ def change_points(usr_raw, amount=0, is_admin=False):
     Points[user] += amount
 
     try:
-	SaveIO.save(Points, save_subdir, 'Points_Data')
-	return "Changed points for " + user + " by " + str(amount) + ". New total: " + str(Points[user])
+	    SaveIO.save(Points, save_subdir, 'Points_Data')
+	    return "Changed points for " + user + " by " + str(amount) + ". New total: " + str(Points[user])
     except:
-	SaveIO.save(Points, save_subdir, 'Points_Data')
-	return "An error occurred, but the points transfer *has* taken place."
+	    SaveIO.save(Points, save_subdir, 'Points_Data')
+	    return "An error occurred, but the points transfer *has* taken place."
 
 
 # commands
@@ -105,8 +101,12 @@ def give_points(cmd, bot, args, msg, event):
     remove = change_points(negUser, negAmount)
     if remove == False:
         return "You do not have enough points to give that many away."
-    result = change_points(user, amount)
-    return result
+        
+    if user in bot.command('getcurrentusers pingformat',msg,event).lower():
+        result = change_points(user, amount)
+        return result
+    else:
+        return 'I don\'t think I had the pleasure of meeting '+user
 
 
 def admin_points(cmd, bot, args, msg, event):
@@ -132,10 +132,15 @@ def get_points(cmd, bot, args, msg, event):
     elif len(args) >= 1:
         user = format_user_name(args[0])
 
+	
     if user in Points:
         return str(Points[user])
     else:
-	change_points(user)
+        list_current_users = bot.command('getcurrentusers pingformat',msg,event).lower()
+        if user in list_current_users:
+	        return change_points(user)
+        else:
+	        return 'I am not sure I met ' + user
 
 
 def show_points(cmd, bot, args, msg, event):
@@ -167,8 +172,7 @@ def prune_points(cmd, bot, args, msg, event):
 
 def clear_points(cmd, bot, args, msg, event):
     global Points
-    for u in range(len(Points),0,-1):
-	del Points[u]
+    Points.clear()
     return "List of points cleared. You can start again."
 
 
