@@ -53,28 +53,34 @@ def on_bot_stop(bot):
 
 # helper methods
 
-def change_points(user, amount, is_admin=False):
+def format_user_name(user)
+    usr = user.replace(' ','')
+    return usr.lower()
+
+def change_points(usr_raw, amount=0, is_admin=False):
     global Points
-    if user.lower() not in Points:
-        Points[user.lower()] = 200
-    if not is_admin:
-        if Points[user.lower()] + amount < 0:
+
+    user = format_user_name(user)
+
+    if user not in Points:
+	list_current_users = bot.command('getcurrentusers pingformat')
+	if user in lust_current_users.lower():
+	    Points[user] = 200
+	    return user + ' is given a welcome budget of 200 points'
+	else:
+	    return user + ' is not present. Who are you trying to give points to?'
+
+    if not is_admin and Points[user] + amount < 0:
             return False
-        Points[user.lower()] += amount
-        try:
-            SaveIO.save(Points, save_subdir, 'Points_Data')
-            return "Changed points for " + user + " by " + str(amount) + ". New total: " + str(Points[user.lower()])
-        except:
-            SaveIO.save(Points, save_subdir, 'Points_Data')
-            return "An error occurred, but the points transfer *has* taken place."
-    else:
-        Points[user.lower()] += amount
-        try:
-            SaveIO.save(Points, save_subdir, 'Points_Data')
-            return "Changed points for " + user + " by " + str(amount) + ". New total: " + str(Points[user.lower()])
-        except:
-            SaveIO.save(Points, save_subdir, 'Points_Data')
-            return "An error occurred, but the points transfer *has* taken place."
+
+    Points[user] += amount
+
+    try:
+	SaveIO.save(Points, save_subdir, 'Points_Data')
+	return "Changed points for " + user + " by " + str(amount) + ". New total: " + str(Points[user])
+    except:
+	SaveIO.save(Points, save_subdir, 'Points_Data')
+	return "An error occurred, but the points transfer *has* taken place."
 
 
 # commands
@@ -83,7 +89,7 @@ def give_points(cmd, bot, args, msg, event):
     if len(args) < 2:
         return "Not enough arguments."
 
-    user = args[0]
+    user = format_user_name(args[0])
     amount = args[1]
 
     if "-" in amount:
@@ -94,7 +100,7 @@ def give_points(cmd, bot, args, msg, event):
         return "Invalid amount."
 
     negAmount = -amount
-    negUser = event.user.name.replace(' ', '')
+    negUser = format_user_name(event.user.name)
 
     remove = change_points(negUser, negAmount)
     if remove == False:
@@ -107,7 +113,7 @@ def admin_points(cmd, bot, args, msg, event):
     if len(args) < 2:
         return "Not enough arguments."
 
-    user = args[0]
+    user = format_user_name(args[0])
     amount = args[1]
 
     try:
@@ -122,14 +128,14 @@ def admin_points(cmd, bot, args, msg, event):
 def get_points(cmd, bot, args, msg, event):
     user = ""
     if len(args) == 0:
-        user = event.user.name
+        user = format_user_name(event.user.name)
     elif len(args) >= 1:
-        user = args[0]
-    if user.lower() in Points:
-        return str(Points[user.lower()])
+        user = format_user_name(args[0])
+
+    if user in Points:
+        return str(Points[user])
     else:
-        Points[user.lower()] = 200
-        return "200"
+	change_points(user)
 
 
 def show_points(cmd, bot, args, msg, event):
@@ -142,7 +148,6 @@ def show_points(cmd, bot, args, msg, event):
             
     for user in Points:
         if Points[user] == 0 and not print_all:
-            #del Points[user]
             continue
         
         message = message + "\n " + str(user) + ": " + str(Points[user])
@@ -160,27 +165,40 @@ def prune_points(cmd, bot, args, msg, event):
         del Points[users_to_delete[u]]
     return "User with 0 points have been removed from list"
 
+def clear_points(cmd, bot, args, msg, event):
+    global Points
+    for u in range(len(Points),0,-1):
+	del Points[u]
+    return "List of points cleared. You can start again."
+
 
 def star(cmd, bot, args, msg, event):
     global Stars
+
     if len(args) < 1:
         return "Not enough arguments."
     id_ = args[0]
-    user = event.user.name
+    user = format_user_name(event.user.name)
+
     try:
         id_ = int(id_)
     except:
         return "Invalid arguments."
+
     message = bot.client.get_message(id_)
+
     if not message.starred_by_you and id_ in Stars:
         return "This message cannot be starred because a moderator has removed votes."
     if message.starred_by_you or id_ in Stars:
         return "This message has already been starred by someone else."
     if message.owner.name == "KarmaBot":
         return "I can't star my own messages."
-    result = change_points(user, -100, True)
+
+    result = change_points(user, -100)
+
     if not result:
         return "You don't have enough points to pin a message."
+
     message.star()
     Stars[id_] = user
     SaveIO.save(Stars, save_subdir, 'Stars_Data')
@@ -192,7 +210,7 @@ def pin(cmd, bot, args, msg, event):
     if len(args) < 1:
         return "Not enough arguments."
     id_ = args[0]
-    user = event.user.name
+    user = format_user_name(event.user.name)
     try:
         id_ = int(id_)
     except:
@@ -204,7 +222,7 @@ def pin(cmd, bot, args, msg, event):
         return "This message has already been pinned."
     if message.owner.name == 'KarmaBot':
         return "I can't pin my own messages. This is a design decision because of a bug in chat."
-    result = change_points(user, -500, True)
+    result = change_points(user, -500)
     if not result:
         return "You don't have enough points to pin a message."
     message.pin()
@@ -224,7 +242,7 @@ def unstar(cmd, bot, args, msg, event):
     if len(args) < 1:
         return "Not enough arguments."
     id_ = args[0]
-    user = event.user.name
+    user = format_user_name(event.user.name)
     try:
         id_ = int(id_)
     except:
@@ -254,7 +272,7 @@ def unpin(cmd, bot, args, msg, event):
     if len(args) < 1:
         return "Not enough arguments."
     id_ = args[0]
-    user = event.user.name
+    user = format_user_name(event.user.name)
     try:
         id_ = int(id_)
     except:
@@ -291,5 +309,6 @@ commands = [
     Command('unstar', unstar,
             "Unstars a message. You can't unstar a message someone else starred. Syntax: `unstar <id>`", False),
     Command('unpin', unpin,
-            "Unpins a message. You can't unpin a message someone else pinned. Syntax: `unpin <id>`", False)
+            "Unpins a message. You can't unpin a message someone else pinned. Syntax: `unpin <id>`", False),
+    Command('clearpoints',clear_points,'Remove all users from the points list', True)
 ]
