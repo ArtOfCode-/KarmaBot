@@ -189,24 +189,27 @@ def star(cmd, bot, args, msg, event):
     except:
         return "Invalid arguments."
 
-    message = bot.client.get_message(id_)
-
-    if not message.starred_by_you and id_ in Stars:
-        return "This message cannot be starred because a moderator has removed votes."
-    if message.starred_by_you or id_ in Stars:
-        return "This message has already been starred by someone else."
-    if message.owner.name == "KarmaBot":
-        return "I can't star my own messages."
-
-    result = change_points(user, -100)
-
-    if not result:
-        return "You don't have enough points to pin a message."
-
-    message.star()
-    Stars[id_] = user
-    SaveIO.save(Stars, save_subdir, 'Stars_Data')
-    return "Message starred. You have been charged 100 points."
+    try:
+        message = bot.client.get_message(id_)
+    
+        if not message.starred_by_you and id_ in Stars:
+            return "This message cannot be starred because a moderator has removed votes."
+        if message.starred_by_you or id_ in Stars:
+            return "This message has already been starred by someone else."
+        if message.owner.name == "KarmaBot":
+            return "I can't star my own messages."
+    
+        result = change_points(user, -100)
+    
+        if not result:
+            return "You don't have enough points to pin a message."
+    
+        message.star()
+        Stars[id_] = user
+        SaveIO.save(Stars, save_subdir, 'Stars_Data')
+        return "Message starred. You have been charged 100 points."
+    except: 
+        return "Message not found."
 
 
 def pin(cmd, bot, args, msg, event):
@@ -219,20 +222,28 @@ def pin(cmd, bot, args, msg, event):
         id_ = int(id_)
     except:
         return "Invalid arguments."
-    message = bot.client.get_message(id_)
-    if not message.pinned and id_ in Pins:
-        return "This message cannot be pinned because a moderator has removed votes."
-    if message.pinned or id_ in Pins:
-        return "This message has already been pinned."
-    if message.owner.name == 'KarmaBot':
-        return "I can't pin my own messages. This is a design decision because of a bug in chat."
-    result = change_points(user, -500)
-    if not result:
-        return "You don't have enough points to pin a message."
-    message.pin()
-    Pins[id_] = user
-    SaveIO.save(Pins, save_subdir, 'Pins_Data')
-    return "Message pinned. You have been charged 500 points."
+    try:
+        message = bot.client.get_message(id_)
+        
+        if not message.pinned and id_ in Pins:
+            return "This message cannot be pinned because a moderator has removed votes."
+        if message.pinned or id_ in Pins:
+            return "This message has already been pinned."
+        if message.owner.name == 'KarmaBot':
+            return "I can't pin my own messages. This is a design decision because of a bug in chat."
+            
+        result = change_points(user, -500)
+        
+        if not result:
+            return "You don't have enough points to pin a message."
+            
+        message.pin()
+        Pins[id_] = user
+        SaveIO.save(Pins, save_subdir, 'Pins_Data')
+        return "Message pinned. You have been charged 500 points."
+        
+    except: 
+        return "Message not found"
 
 
 def unstar(cmd, bot, args, msg, event):
