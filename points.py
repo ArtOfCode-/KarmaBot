@@ -287,9 +287,9 @@ commands = [
     Command('star', star,
             "Stars a message. You can't star my messages or messages I've already starred. Syntax: `star <id>`", False),
     Command('pin', pin,
-            "Pins a message. You can't pin a message that's already pinned. Syntax: `pin <id>`", False),
+            "Pins a message. You can't pin a message that's already pinned. Syntax: `pin <id>`",True),
     Command('unstar', unstar,
             "Unstars a message. You can't unstar a message someone else starred. Syntax: `unstar <id>`", False),
     Command('unpin', unpin,
-            "Unpins a message. You can't unpin a message someone else pinned. Syntax: `unpin <id>`", False)
+            "Unpins a message. You can't unpin a message someone else pinned. Syntax: `unpin <id>`", True)
 ]
