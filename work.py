@@ -100,12 +100,17 @@ class User:
             return ", you have been working for {0} minutes. Don't lose the momentum. You now stand at {1} messages.".format(time_in_min+hour_passed-total_pause,counts)
         
     def start_pause(self):
-        self.pause = True
-        self.pause_start = time.time()
+        if not self.pause:
+            self.pause = True
+            self.pause_start = time.time()
         
     def stop_pause(self):
-        self.pause = False
-        self.pause_length += time.time() - self.pause_start
+        if self.pause:
+            self.pause = False
+            self.pause_length += time.time() - self.pause_start
+            return 'Pause is over, get back to work!'
+        else:
+            return 'Wait, you were in pause? You should have told me.'
             
 #---------------------------------------------
 
@@ -235,7 +240,7 @@ def work_unpause(bot, args, msg, event):
         return "Were you supposed to be working? You did not tell me!"
     message = work_vars['working'][event.user.name].stop_pause()
     thread_lock.release()
-    return "Pause is over, back to work!"
+    return message
  
 
 def work_plugin_start(bot, args, msg, event):
