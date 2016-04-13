@@ -270,6 +270,9 @@ def work_plugin_stop(bot, args, msg, event):
         thread_lock.release()                   # Lock release
         return "Work-Plugin not running."
     
+    if len(work_vars['working'])>0:
+        return "Someone is still working."
+        
     work_vars['running']= False
     work_vars['thread'].close()
     work_vars['thread'] = None

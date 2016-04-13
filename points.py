@@ -15,6 +15,7 @@
 
 # imports
 from Module import Command
+from re import sub
 import SaveIO
 
 # config options
@@ -63,7 +64,7 @@ def change_points(user_raw, amount=0, is_admin=False, list_current_users=""):
     user = format_user_name(user_raw)
 
     if user not in Points:
-        Points[user] = 200
+        Points[user] = 200+amount
         return user + ' is given a welcome budget of 200 points'
 
     if not is_admin and Points[user] + amount < 0:
@@ -82,6 +83,8 @@ def change_points(user_raw, amount=0, is_admin=False, list_current_users=""):
 # commands
 
 def give_points(cmd, bot, args, msg, event):
+    global Points
+    
     if len(args) < 2:
         return "Not enough arguments."
 
@@ -97,16 +100,34 @@ def give_points(cmd, bot, args, msg, event):
 
     negAmount = -amount
     negUser = format_user_name(event.user.name)
+    
+    # is user logged in
+    list_current_users = sub("^:[0-9]\+\ ","",bot.command('getcurrentusers pingformat',msg,event).lower()).split()
+    #list_current_users = bot.command('getcurrentusers pingformat',msg,event).lower().split(', ')
+    user_current = False
+    for u in list_current_users:
+        if user == u:
+            user_current = True
+            break
+        
+    # was user already registered?
+    user_prev = False
+    for u in Points:
+        if user == u:
+            user_prev = True
+            break
 
+    #if (user not in bot.command('getcurrentusers pingformat',msg,event).lower()) and (user not in Points):
+    #if (not user_current) and (not user_prev):
+    if (user not in list_current_users) and (user not in Points):
+        return 'I don\'t think I had the pleasure of meeting '+user
+        
     remove = change_points(negUser, negAmount)
     if remove == False:
         return "You do not have enough points to give that many away."
         
-    if user in bot.command('getcurrentusers pingformat',msg,event).lower():
-        result = change_points(user, amount)
-        return result
-    else:
-        return 'I don\'t think I had the pleasure of meeting '+user
+    result = change_points(user, amount)
+    return result
 
 
 def admin_points(cmd, bot, args, msg, event):
@@ -132,15 +153,20 @@ def get_points(cmd, bot, args, msg, event):
     elif len(args) >= 1:
         user = format_user_name(args[0])
 
-	
+    # was user already registered?
+    #for u in Points:
+    #    if user == u:
     if user in Points:
         return str(Points[user])
-    else:
-        list_current_users = bot.command('getcurrentusers pingformat',msg,event).lower()
-        if user in list_current_users:
-	        return change_points(user)
-        else:
-	        return 'I am not sure I met ' + user
+	
+    list_current_users = sub("^:[0-9]\+\ ","",bot.command('getcurrentusers pingformat',msg,event).lower()).split()
+    #return list_current_users
+    #for u in list_current_users:
+    #    if user == u:
+    if user in list_current_users:
+        return change_points(user)
+        
+    return 'I am not sure I met ' + user
 
 
 def show_points(cmd, bot, args, msg, event):
